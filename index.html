@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Working after marriage — Nebula, PLS 210</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-0:#080a10; --navy-1:#0d111c; --navy-2:#141a2a; --navy-3:#1b2338;
+    --paper-1:#faf6ef; --paper-2:#f0e9db;
+    --coral:#ff6a4d; --teal:#19d3c0; --amber:#ffb648; --violet:#9b8cff;
+    --ink:#15131f; --ink-soft:#4a4560;
+    --foam:#f4f2fb; --foam-soft:#c7c2de;
+    --glass-dark:rgba(255,255,255,.055); --glass-dark-b:rgba(255,255,255,.13);
+    --glass-light:rgba(255,255,255,.66); --glass-light-b:rgba(21,19,31,.09);
+    --font-display:"Playfair Display", serif;
+    --font-body:"Plus Jakarta Sans", sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; margin:0; overflow:hidden; font-family:var(--font-body); background:var(--navy-0); }
+  ::selection{ background:var(--coral); color:#fff; }
+
+  .deck{ position:relative; width:100vw; height:100vh; aspect-ratio:16/9; max-height:100vh; margin:0 auto; }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex;
+    overflow-y:auto;
+    padding: clamp(1.2rem, 4.6vw, 4.8rem) clamp(1.6rem, 7.5vw, 7.5rem);
+    padding-bottom: clamp(4.8rem, 10vh, 6.4rem);
+    opacity:0; transform:translateX(3%) scale(.99);
+    pointer-events:none;
+    transition: opacity .5s ease, transform .6s cubic-bezier(.22,.61,.36,1);
+  }
+  .slide.active{ opacity:1; transform:translateX(0) scale(1); pointer-events:auto; }
+  .slide.exit-left{ transform:translateX(-3%) scale(.99); }
+
+  .slide.dark{ color:var(--foam); }
+  .slide.light{ color:var(--ink); }
+  .slide.dark::before{ content:""; position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.5) 0, transparent 60%),
+                      radial-gradient(1px 1px at 70% 65%, rgba(255,255,255,.35) 0, transparent 60%),
+                      radial-gradient(1px 1px at 45% 85%, rgba(255,255,255,.3) 0, transparent 60%); }
+  .slide[data-chapter="1"]{ background:radial-gradient(90% 120% at 8% -6%, var(--navy-3), var(--navy-0) 62%), linear-gradient(160deg, rgba(255,106,77,.14), transparent 45%); }
+  .slide[data-chapter="2"]{ background:radial-gradient(90% 120% at 92% -6%, var(--navy-3), var(--navy-0) 62%), linear-gradient(200deg, rgba(25,211,192,.14), transparent 45%); }
+  .slide[data-chapter="3"]{ background:radial-gradient(90% 120% at 10% 108%, var(--navy-3), var(--navy-0) 62%), linear-gradient(15deg, rgba(155,140,255,.14), transparent 45%); }
+  .slide[data-chapter="4"]{ background:radial-gradient(90% 120% at 92% 106%, var(--navy-3), var(--navy-0) 62%), linear-gradient(340deg, rgba(255,182,72,.14), transparent 45%); }
+  .slide[data-chapter="5"]{ background:radial-gradient(90% 130% at 50% -12%, var(--navy-3), var(--navy-0) 62%), linear-gradient(180deg, rgba(255,106,77,.12), rgba(255,182,72,.1) 40%, transparent 70%); }
+
+  .content{ max-width:min(52vw,900px); position:relative; z-index:1; width:100%; margin:auto 0; }
+  .content.wide{ max-width:min(62vw,1080px); }
+  @media (max-width:900px){ .content, .content.wide{ max-width:100%; } }
+
+  .waypoint{ display:flex; align-items:center; gap:.7em; margin-bottom:1.3rem; flex-wrap:wrap; }
+  .waypoint .pin{
+    width:2rem; height:2rem; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:.85rem; flex-shrink:0;
+  }
+  .dark .waypoint .pin{ background:var(--glass-dark); color:var(--coral); border:1px solid var(--glass-dark-b); }
+  .waypoint .chapter{ font-weight:700; font-size:.78rem; text-transform:uppercase; letter-spacing:.09em; opacity:.65; }
+  .waypoint .kicker{ font-weight:600; font-size:.82rem; opacity:.55; margin-left:.3em; }
+
+  h1,h2{ font-family:var(--font-display); font-weight:700; margin:0 0 .48em 0; letter-spacing:-.01em; }
+  .slide h1{ font-size:clamp(2.1rem, 4.6vw, 3.6rem); line-height:1.04; }
+  .slide h2{ font-size:clamp(1.4rem, 2.7vw, 2.15rem); line-height:1.14; }
+
+  .lede{ font-family:var(--font-display); font-style:italic; font-weight:500; font-size:clamp(1.1rem,2vw,1.4rem); line-height:1.42; max-width:42ch; opacity:.85; margin:0 0 1.2rem 0;}
+
+  ul.beat{ margin:1.1rem 0 0 0; padding:0; list-style:none; }
+  ul.beat li{
+    position:relative; padding-left:1.8rem; margin-bottom:.85rem;
+    font-size:clamp(1rem, 1.35vw, 1.12rem); line-height:1.52; max-width:62ch; font-weight:400;
+  }
+  ul.beat li::before{ content:"→"; position:absolute; left:0; top:0; font-weight:700; font-size:.95em; }
+  .dark ul.beat li::before{ color:var(--coral); }
+  .dark ul.beat li{ color:var(--foam-soft); }
+  ul.beat li strong{ font-weight:700; }
+  .dark ul.beat li strong{ color:#fff; }
+
+  .payoff{
+    font-family:var(--font-display); font-style:italic; font-weight:600;
+    font-size:clamp(1.1rem,2vw,1.4rem); line-height:1.4; max-width:38ch; margin-top:1.3rem;
+  }
+  .dark .payoff{ color:var(--teal); }
+
+  .pill-row{ display:flex; gap:.6rem; flex-wrap:wrap; margin-top:1.5rem; }
+  .pill{ display:inline-block; font-weight:700; font-size:.78rem; letter-spacing:.03em; padding:.5em 1.1em; border-radius:999px; margin-bottom:.8rem; border:1px solid transparent; }
+  .pill.c1{ background:rgba(255,106,77,.16); color:var(--coral); border-color:rgba(255,106,77,.4); }
+  .pill.c2{ background:rgba(25,211,192,.16); color:var(--teal); border-color:rgba(25,211,192,.4); }
+  .pill.c3{ background:rgba(155,140,255,.16); color:var(--violet); border-color:rgba(155,140,255,.4); }
+  .pill.c4{ background:rgba(255,182,72,.18); color:var(--amber); border-color:rgba(255,182,72,.45); }
+
+  .rq-main{ font-family:var(--font-display); font-size:clamp(1.35rem,2.4vw,1.9rem); line-height:1.32; font-weight:500; border-left:3px solid var(--coral); padding-left:1.4rem; margin:.5rem 0 1.5rem 0; }
+
+  .facets{ display:flex; gap:.7rem; flex-wrap:wrap; margin-top:.5rem; }
+  .facet{ padding:.75em 1.1em; border-radius:14px; background:var(--glass-dark); border:1px solid var(--glass-dark-b); min-width:10rem; border-top:2px solid var(--coral); }
+  .facet dt{ font-size:.7rem; opacity:.6; margin-bottom:.25rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+  .facet dd{ margin:0; font-family:var(--font-display); font-weight:600; font-size:1.05rem; }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; margin-top:1.1rem; }
+  .two-col.evid{ grid-template-columns:1.3fr 1fr; }
+  @media (max-width:860px){ .two-col, .two-col.evid{ grid-template-columns:1fr; gap:.9rem; } }
+  .col{ padding:1.2rem 1.35rem; border-radius:18px; }
+  .dark .col{ background:var(--glass-dark); border:1px solid var(--glass-dark-b); backdrop-filter:blur(10px); }
+  .col h3{ font-family:var(--font-display); font-weight:700; font-size:1.04rem; margin:0 0 .7rem 0; }
+  .col.urban h3{ color:var(--teal); } .col.rural h3{ color:var(--coral); }
+  .col.ev h3{ color:var(--amber); } .col.ls h3{ color:var(--teal); }
+  .col ul{ margin:0; padding:0; list-style:none; }
+  .col li{ position:relative; padding-left:1.2rem; margin-bottom:.6em; font-size:.94rem; line-height:1.46; }
+  .dark .col li{ color:var(--foam-soft); }
+  .col li::before{ content:"•"; position:absolute; left:0; font-weight:700; }
+  .col.urban li::before{ color:var(--teal); } .col.rural li::before{ color:var(--coral); }
+  .col.ev li::before{ color:var(--amber); } .col.ls li::before{ color:var(--teal); }
+  .src{
+    display:inline-block; font-size:.7rem; font-weight:700; padding:.1em .65em; border-radius:999px;
+    background:rgba(255,255,255,.12); color:var(--foam); margin-right:.35em; white-space:nowrap; border:1px solid var(--glass-dark-b);
+  }
+
+  .frame{ border-radius:22px; padding:1.1rem 1.3rem 1.3rem; margin:1.2rem 0 1rem 0; background:var(--glass-dark); border:1px solid var(--glass-dark-b); }
+  .frame-label{ font-weight:700; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--amber); margin-bottom:.9rem; }
+  .frame-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; }
+  @media (max-width:760px){ .frame-row{ grid-template-columns:1fr; } }
+  .node{ border-radius:14px; padding:.8rem .95rem; background:rgba(255,255,255,.05); border:1px solid var(--glass-dark-b); border-top:2.5px solid var(--coral); color:var(--foam); }
+  .node.c2{ border-top-color:var(--teal); } .node.c3{ border-top-color:var(--violet); }
+  .node b{ display:block; font-family:var(--font-display); font-size:1.02rem; margin-bottom:.2rem; }
+  .node span{ font-size:.82rem; opacity:.75; }
+
+  .cite{ margin:1.2rem 0 0 0; padding:0; display:flex; flex-direction:column; gap:1.1rem; }
+  .cite li{ list-style:none; padding:1rem 1.2rem; border-left:3px solid var(--coral); background:var(--glass-dark); border:1px solid var(--glass-dark-b); border-left:3px solid var(--coral); border-radius:0 14px 14px 0; }
+  .cite li:nth-child(2){ border-left-color:var(--teal); }
+  .cite li:nth-child(3){ border-left-color:var(--violet); }
+  .cite .who{ font-family:var(--font-display); font-weight:700; font-size:1.1rem; color:#fff; }
+  .cite .yr{ font-weight:400; opacity:.6; font-style:italic; }
+  .cite p{ margin:.35rem 0 0 0; font-size:.98rem; line-height:1.44; max-width:62ch; color:var(--foam-soft); }
+
+  ul.refs{ margin:1.1rem 0 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.8rem; }
+  ul.refs li{ padding-left:2rem; text-indent:-2rem; font-size:clamp(.82rem,1.1vw,.96rem); line-height:1.48; max-width:82ch; color:var(--foam-soft); overflow-wrap:anywhere; }
+  ul.refs li em{ font-style:italic; }
+  ul.refs a{ color:var(--foam); text-decoration:underline; text-decoration-color:var(--coral); text-underline-offset:2px; }
+
+  .note{ font-size:.82rem; opacity:.6; margin-top:1.3rem; max-width:56ch; font-style:italic; }
+
+  .byline{ display:flex; align-items:center; gap:.8rem; margin-top:1.7rem; }
+  .byline .dot{ width:8px; height:8px; border-radius:50%; background:var(--coral); }
+  .byline span{ font-size:.92rem; opacity:.65; font-weight:600; letter-spacing:.02em; }
+
+  .nav{
+    position:fixed; left:50%; bottom:1.4rem; transform:translateX(-50%); z-index:5;
+    display:flex; align-items:center; gap:1rem;
+    padding:.6rem .9rem; border-radius:999px;
+    background:rgba(10,12,20,.55); border:1px solid rgba(255,255,255,.1); backdrop-filter:blur(14px);
+    font-family:var(--font-body); font-size:.82rem; color:var(--foam);
+    width:min(90vw, 30rem);
+  }
+  body.light-nav .nav{ color:var(--ink); background:rgba(255,255,255,.6); border-color:rgba(21,19,31,.1); }
+  .nav .track{ position:relative; flex:1; height:5px; border-radius:6px; overflow:hidden; background:rgba(255,255,255,.16); }
+  body.light-nav .nav .track{ background:rgba(21,19,31,.12); }
+  .nav .track i{
+    position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:6px;
+    background-image:linear-gradient(90deg, var(--coral), var(--amber), var(--teal));
+    transition:width .5s cubic-bezier(.22,.61,.36,1);
+  }
+  .nav .count{ min-width:4em; opacity:.75; font-variant-numeric:tabular-nums; font-weight:700; }
+  .nav button{
+    appearance:none; border:1.5px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06); color:inherit;
+    width:2.15rem; height:2.15rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:border-color .2s ease, background .2s ease, transform .2s ease; flex-shrink:0;
+  }
+  body.light-nav .nav button{ border-color:rgba(21,19,31,.2); background:rgba(21,19,31,.05); }
+  .nav button:hover{ transform:scale(1.08); border-color:var(--coral); }
+  .nav button:focus-visible{ outline:2px solid var(--coral); outline-offset:2px; }
+  .nav button:disabled{ opacity:.3; cursor:default; transform:none; }
+  .nav button svg{ width:13px; height:13px; }
+
+  @keyframes revealUp{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:translateY(0); } }
+  @keyframes pulseDot{ 0%,100%{ opacity:.55; transform:scale(1); } 50%{ opacity:1; transform:scale(1.4); } }
+
+  .slide .content > *{ opacity:0; }
+  .slide.active .content > *{ animation:revealUp .7s cubic-bezier(.22,.61,.36,1) both; }
+  .slide.active .content > *:nth-child(1){ animation-delay:.04s; }
+  .slide.active .content > *:nth-child(2){ animation-delay:.12s; }
+  .slide.active .content > *:nth-child(3){ animation-delay:.2s; }
+  .slide.active .content > *:nth-child(4){ animation-delay:.28s; }
+  .slide.active .content > *:nth-child(5){ animation-delay:.36s; }
+  .slide.active .content > *:nth-child(6){ animation-delay:.44s; }
+  .slide.active .content > *:nth-child(7){ animation-delay:.52s; }
+
+  .slide ul.beat li, .slide .cite li, .slide .facets .facet, .slide .frame-row .node,
+  .slide ul.refs li, .slide .pill-row .pill{ opacity:0; }
+  .slide.active ul.beat li, .slide.active .cite li, .slide.active .facets .facet,
+  .slide.active .frame-row .node, .slide.active ul.refs li, .slide.active .pill-row .pill{
+    animation:revealUp .55s cubic-bezier(.22,.61,.36,1) both;
+  }
+  .slide.active ul.beat li:nth-child(1), .slide.active .cite li:nth-child(1), .slide.active .facets .facet:nth-child(1), .slide.active .frame-row .node:nth-child(1), .slide.active ul.refs li:nth-child(1), .slide.active .pill-row .pill:nth-child(1){ animation-delay:.3s; }
+  .slide.active ul.beat li:nth-child(2), .slide.active .cite li:nth-child(2), .slide.active .facets .facet:nth-child(2), .slide.active .frame-row .node:nth-child(2), .slide.active ul.refs li:nth-child(2), .slide.active .pill-row .pill:nth-child(2){ animation-delay:.38s; }
+  .slide.active ul.beat li:nth-child(3), .slide.active .cite li:nth-child(3), .slide.active .facets .facet:nth-child(3), .slide.active .frame-row .node:nth-child(3), .slide.active ul.refs li:nth-child(3), .slide.active .pill-row .pill:nth-child(3){ animation-delay:.46s; }
+  .slide.active ul.beat li:nth-child(4), .slide.active .cite li:nth-child(4), .slide.active ul.refs li:nth-child(4){ animation-delay:.54s; }
+  .slide.active ul.beat li:nth-child(5), .slide.active ul.refs li:nth-child(5){ animation-delay:.62s; }
+  .slide.active ul.beat li:nth-child(6){ animation-delay:.7s; }
+
+  .two-col .col{ opacity:0; }
+  .slide.active .two-col .col{ animation:revealUp .6s cubic-bezier(.22,.61,.36,1) both; }
+  .slide.active .two-col .col:nth-child(1){ animation-delay:.28s; }
+  .slide.active .two-col .col:nth-child(2){ animation-delay:.4s; }
+
+  .byline .dot{ animation:pulseDot 2.4s ease-in-out infinite; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide{ transition:opacity .2s linear !important; transform:none !important; }
+    .slide .content > *, .slide ul.beat li, .slide .cite li, .slide .facets .facet,
+    .slide .frame-row .node, .slide ul.refs li, .slide .pill-row .pill, .two-col .col{
+      opacity:1 !important; animation:none !important; transform:none !important;
+    }
+    .byline .dot{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- 1 : TITLE -->
+  <section class="slide dark" data-chapter="1">
+    <div class="content">
+      <div class="waypoint"><span class="pin">1</span><span class="chapter">Setting out</span><span class="kicker">PLS 210 · Presentation 1</span></div>
+      <h1>What does working after marriage mean to rural vs. urban women in Kazakhstan?</h1>
+      <p class="lede">Married women, urban and rural, working and not, describing what work means once marriage changes the terms.</p>
+      <div class="byline"><span class="dot"></span><span>Nebula</span></div>
+    </div>
+  </section>
+
+  <!-- 2 : RESEARCH QUESTION -->
+  <section class="slide dark" data-chapter="1">
+    <div class="content">
+      <div class="waypoint"><span class="pin">2</span><span class="chapter">Setting out</span><span class="kicker">Research question</span></div>
+      <p class="rq-main">How do married women in Kazakhstan's urban and rural settlements describe, in 2026, the meaning of working after marriage, whether or not they currently work, and how do their accounts differ?</p>
+      <div class="facets">
+        <div class="facet"><dt>Population</dt><dd>Married women, any employment status</dd></div>
+        <div class="facet"><dt>Context</dt><dd>Urban vs. rural, by KZ settlement type</dd></div>
+        <div class="facet"><dt>Time</dt><dd>2026: present-day accounts</dd></div>
+      </div>
+      <ul class="beat" style="margin-top:1.3rem;">
+        <li><strong>Rural/urban</strong> defined by Kazakhstan's own settlement classification, not one named city or village</li>
+        <li><strong>Employment status left open:</strong> working and non-working women both belong here</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 : CONTRIBUTION -->
+  <section class="slide dark" data-chapter="2">
+    <div class="content">
+      <div class="waypoint"><span class="pin">3</span><span class="chapter">Why it matters</span><span class="kicker">Contribution</span></div>
+      <h2>The literature explains the barriers. Nobody has asked what work means to the women inside them.</h2>
+      <ul class="beat">
+        <li>Structural research (childcare gaps, labor law, institutional ceilings) explains <strong>why</strong> participation lags</li>
+        <li>Almost nothing asks how women themselves narrate choosing to work, or not, after marriage</li>
+        <li>Rural vs. urban usually appears as a <strong>variable</strong>, not a real side-by-side comparison</li>
+      </ul>
+      <p class="payoff">This project puts women's own words at the center and takes the rural/urban split seriously.</p>
+    </div>
+  </section>
+
+  <!-- 4 : EPISTEMOLOGICAL POSITIONING -->
+  <section class="slide dark" data-chapter="2">
+    <div class="content">
+      <div class="waypoint"><span class="pin">4</span><span class="chapter">Why it matters</span><span class="kicker">Epistemological positioning</span></div>
+      <h2>Interpretivist</h2>
+      <ul class="beat">
+        <li>The question asks what work <strong>means</strong>, not whether a variable predicts it</li>
+        <li>That calls for open interviews, not a fixed hypothesis to test</li>
+        <li>Meaning is built in context: region, marriage, and generation shape it</li>
+        <li>I am part of the instrument here, not a neutral measuring tool</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5 : LIT REVIEW 1 -->
+  <section class="slide dark" data-chapter="3">
+    <div class="content">
+      <div class="waypoint"><span class="pin">5</span><span class="chapter">The trail so far</span><span class="kicker">Literature review · 1 of 2 · Structural &amp; institutional constraints</span></div>
+      <ul class="cite">
+        <li>
+          <span class="who">Kovaleva et al. <span class="yr">(2025)</span></span>
+          <p>Traditional family structures and unpaid care work restrict women's economic participation and entrepreneurial potential in Kazakhstan and Kyrgyzstan.</p>
+        </li>
+        <li>
+          <span class="who">Buribayev &amp; Khamzina <span class="yr">(2019)</span></span>
+          <p>Liberalization of the Labor Code reduced social and labor guarantees for women and workers with family responsibilities, worsening discrimination and gender segregation.</p>
+        </li>
+        <li>
+          <span class="who">Kuzhabekova et al. <span class="yr">(2018)</span></span>
+          <p>Women leaders in the civil service face a clash between neoliberal expectations to contribute economically and traditional norms that prioritize domestic roles, hindering leadership advancement.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6 : LIT REVIEW 2 -->
+  <section class="slide dark" data-chapter="3">
+    <div class="content">
+      <div class="waypoint"><span class="pin">6</span><span class="chapter">The trail so far</span><span class="kicker">Literature review · 2 of 2 · Care burden &amp; ideological frame</span></div>
+      <ul class="cite">
+        <li>
+          <span class="who">Meurs et al. <span class="yr">(2021)</span></span>
+          <p>The burden of caring for very young children limits women's employment in Kazakhstan, and expanding childcare alone has not been enough to raise female employment.</p>
+        </li>
+        <li>
+          <span class="who">Zabirova <span class="yr">(2026)</span></span>
+          <p>Modernization and patriarchy develop together as a "moralized patriarchy": support for women's education and public life coexists with belief in men's economic priority, and hierarchy is re-legitimized as duty and virtue.</p>
+        </li>
+      </ul>
+      <p class="payoff">The gap: all five describe the pattern from the outside. None ask women what working after marriage means to them, or compare rural and urban accounts.</p>
+    </div>
+  </section>
+
+  <!-- 7 : FRAMEWORK OVERVIEW -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content wide">
+      <div class="waypoint"><span class="pin">7</span><span class="chapter">Finding the lens</span><span class="kicker">Analytical framework</span></div>
+      <h2>Four sensitizing concepts, read through one frame</h2>
+      <div class="frame">
+        <div class="frame-label">Moralized patriarchy: the frame that holds the other three in place</div>
+        <div class="frame-row">
+          <div class="node c1"><b>Economic necessity</b><span>what can make work necessary</span></div>
+          <div class="node c2"><b>Identity-driven work</b><span>what can make work meaningful</span></div>
+          <div class="node c3"><b>Family / in-law pressure</b><span>what can make work costly</span></div>
+        </div>
+      </div>
+      <ul class="beat">
+        <li>Sensitizing concepts tell me <strong>where to listen</strong> in interviews; they are not hypotheses to test</li>
+        <li>Each one comes from the reviewed literature. The next slides show the evidence and what I will listen for</li>
+        <li>I stay open to concepts the interviews raise that are not on this list</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8 : ECONOMIC NECESSITY -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content wide">
+      <div class="waypoint"><span class="pin">8</span><span class="chapter">Finding the lens</span><span class="kicker">Analytical framework · Concept 1 of 4</span></div>
+      <span class="pill c1">Economic necessity</span>
+      <h2>Work as a household need</h2>
+      <div class="two-col evid">
+        <div class="col ev">
+          <h3>What the literature shows</h3>
+          <ul>
+            <li><span class="src">Kuzhabekova et al. 2018</span> Women leaders in the civil service are pressed to earn while still held to traditional family-role expectations</li>
+            <li><span class="src">Kuzhabekova et al. 2018</span> The pressure is framed as a clash between neoliberal values (contribute, achieve) and traditional expectations of women</li>
+            <li><span class="src">Zabirova 2026</span> Survey evidence (N = 8,101) shows support for women's public participation alongside belief in men's economic priority, so need-driven work may not change who counts as the main earner</li>
+          </ul>
+        </div>
+        <div class="col ls">
+          <h3>What I will listen for</h3>
+          <ul>
+            <li>Is work explained as "we need the income," and does that make it easier to justify to family?</li>
+            <li>Do rural and urban women weigh need and choice differently?</li>
+            <li>The case that sparked this question: a rural accountant who works because one wage is not enough</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 : IDENTITY-DRIVEN WORK -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content wide">
+      <div class="waypoint"><span class="pin">9</span><span class="chapter">Finding the lens</span><span class="kicker">Analytical framework · Concept 2 of 4</span></div>
+      <span class="pill c2">Identity-driven work</span>
+      <h2>Work as part of who she is</h2>
+      <div class="two-col evid">
+        <div class="col ev">
+          <h3>What the literature shows</h3>
+          <ul>
+            <li><span class="src">Kuzhabekova et al. 2018</span> Women leaders must reconcile professional roles with traditional expectations of them as wives and mothers</li>
+            <li><span class="src">Zabirova 2026</span> Higher education and urban residence go with more egalitarian views, the conditions where work could be valued beyond household duty</li>
+            <li><strong>Least directly documented of the four,</strong> so it is a lens to listen for, not a finding</li>
+          </ul>
+        </div>
+        <div class="col ls">
+          <h3>What I will listen for</h3>
+          <ul>
+            <li>Is work described as self-worth, ambition, or independence, or only as a means?</li>
+            <li>Does continuing to work feel like a right, a negotiation, or a favor granted?</li>
+            <li>My expectation: for urban women, marriage may limit the identity-driven jobs they want</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 : FAMILY / IN-LAW PRESSURE -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content wide">
+      <div class="waypoint"><span class="pin">10</span><span class="chapter">Finding the lens</span><span class="kicker">Analytical framework · Concept 3 of 4</span></div>
+      <span class="pill c3">Family / in-law pressure</span>
+      <h2>Work negotiated inside the family</h2>
+      <div class="two-col evid">
+        <div class="col ev">
+          <h3>What the literature shows</h3>
+          <ul>
+            <li><span class="src">Kovaleva et al. 2025</span> Traditional family structures and unpaid care duties restrict women's economic participation</li>
+            <li><span class="src">Kuzhabekova et al. 2018</span> Traditional family-role expectations shape how women leaders experience their work</li>
+            <li><span class="src">Buribayev &amp; Khamzina 2019</span> At work, expectations of women and men are the same; in the family, the stereotype of male privilege persists</li>
+            <li><span class="src">Zabirova 2026</span> Traditional views are more common among rural residents and older respondents</li>
+          </ul>
+        </div>
+        <div class="col ls">
+          <h3>What I will listen for</h3>
+          <ul>
+            <li>Who has a say (husband, parents-in-law, wider family), and how is it voiced?</li>
+            <li>Is the pressure explicit, or carried as an expectation of what a wife does?</li>
+            <li>My expectation: rural women's work is judged more through a traditional in-law lens</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 : MORALIZED PATRIARCHY -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content wide">
+      <div class="waypoint"><span class="pin">11</span><span class="chapter">Finding the lens</span><span class="kicker">Analytical framework · Concept 4 of 4</span></div>
+      <span class="pill c4">Moralized patriarchy</span>
+      <h2>The frame: hierarchy held in place by duty and virtue</h2>
+      <div class="two-col evid">
+        <div class="col ev">
+          <h3>What the literature shows</h3>
+          <ul>
+            <li><span class="src">Zabirova 2026</span> A nationally representative survey (N = 8,101) finds a hybrid regime: support for women's education and public participation alongside men's economic priority and authority</li>
+            <li><span class="src">Zabirova 2026</span> Hierarchy persists through duty, virtue, and family harmony; the "moralized patriarchal compromise" is the mechanism</li>
+            <li><span class="src">Zabirova 2026</span> Traditional views are more common among men, older respondents, rural residents, highly religious people, and in the south and west; higher education and urban living go with more egalitarian views</li>
+            <li><span class="src">Kuzhabekova et al. 2018</span> The same clash of values appears in women leaders' own accounts</li>
+          </ul>
+        </div>
+        <div class="col ls">
+          <h3>What I will listen for</h3>
+          <ul>
+            <li>Is working after marriage framed as duty to the family, as virtue, or as her own right?</li>
+            <li>Are there conditions attached, such as "as long as the home is looked after"?</li>
+            <li>Does the compromise sound different in rural and urban accounts?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 : EXPECTATIONS -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content">
+      <div class="waypoint"><span class="pin">12</span><span class="chapter">Finding the lens</span><span class="kicker">Working expectations</span></div>
+      <h2>What I expect going in, and could be wrong about</h2>
+      <div class="two-col">
+        <div class="col urban">
+          <h3>Urban women</h3>
+          <ul><li>Tension around pursuing identity-driven jobs</li><li>Better infrastructure supporting that work</li></ul>
+        </div>
+        <div class="col rural">
+          <h3>Rural women</h3>
+          <ul><li>Weaker infrastructure; employment opportunity skews toward men</li><li>Women's work judged through a more traditional in-law lens</li></ul>
+        </div>
+      </div>
+      <p class="note">Expectations, not conclusions. The interviews get the final say.</p>
+    </div>
+  </section>
+
+  <!-- 13 : POSITIONALITY -->
+  <section class="slide dark" data-chapter="4">
+    <div class="content">
+      <div class="waypoint"><span class="pin">13</span><span class="chapter">Finding the lens</span><span class="kicker">Analytical framework · Positionality</span></div>
+      <h2>Where I stand in this question</h2>
+      <ul class="beat">
+        <li>Urban background: it shapes what feels "normal" to me about work after marriage</li>
+        <li>My aunt, in a rural area, works as an accountant because her husband's wage alone is not enough. That answer sparked this question</li>
+        <li>Insider or outsider? Somewhere in between, closer to the urban side</li>
+        <li>I will stay alert to that gap once interviews begin</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 14 : AI TRANSPARENCY -->
+  <section class="slide dark" data-chapter="5">
+    <div class="content">
+      <div class="waypoint"><span class="pin">14</span><span class="chapter">Arrival</span><span class="kicker">AI transparency</span></div>
+      <h2>How AI was used on this proposal</h2>
+      <ul class="beat">
+        <li>This page, its structure, and the wording of the literature synthesis were <strong>built with Claude</strong></li>
+        <li>Claude helped refine the research question from a broad form to the scoped version</li>
+        <li>Claude checked source summaries against the papers' published abstracts</li>
+        <li>The sources, positionality, sensitizing concepts, and expectations are <strong>mine</strong>, and I can explain and defend all of them</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 15 : HOW AI HELPED -->
+  <section class="slide dark" data-chapter="5">
+    <div class="content wide">
+      <div class="waypoint"><span class="pin">15</span><span class="chapter">Arrival</span><span class="kicker">Reflection</span></div>
+      <h2>What working with AI helped me understand, and what I still don't</h2>
+      <div class="two-col" style="margin-top:1rem;">
+        <div>
+          <ul class="beat" style="margin-top:0;">
+            <li><strong>Scoping:</strong> a broad question needs an explicit population, setting, and time frame before it can be answered</li>
+            <li><strong>Interpretivist logic:</strong> a question about meaning calls for open interviews and sensitizing concepts, not testable hypotheses</li>
+            <li><strong>Reading sources:</strong> separating what each study establishes from what I had assumed it showed</li>
+          </ul>
+        </div>
+        <div>
+          <ul class="beat" style="margin-top:0;">
+            <li><strong>Still unresolved:</strong> how I will recruit participants, especially in rural settlements</li>
+            <li><strong>Still unresolved:</strong> whether these are the right four concepts, particularly identity-driven work, which the literature documents least directly</li>
+            <li><strong>Still unresolved:</strong> how my urban positionality shapes what I notice in rural interviews</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 : REFERENCES -->
+  <section class="slide dark" data-chapter="5">
+    <div class="content">
+      <div class="waypoint"><span class="pin">16</span><span class="chapter">Arrival</span><span class="kicker">References</span></div>
+      <h2>References</h2>
+      <ul class="refs">
+        <li>Buribayev, Y. A., &amp; Khamzina, Z. A. (2019). Gender equality in employment: The experience of Kazakhstan. <em>International Journal of Discrimination and the Law, 19</em>(2), 110–124. <a href="https://doi.org/10.1177/1358229119846784" target="_blank" rel="noopener">https://doi.org/10.1177/1358229119846784</a></li>
+        <li>Kovaleva, I., Taylor, L., Pech, G., &amp; Madumarov, E. (2025). What household structure encourages innovation? Comparative analysis of a case study of female labor in Kyrgyzstan and Kazakhstan. <em>Buketov Business Review, 30</em>(1), 30–42. <a href="https://doi.org/10.31489/2025Ec1/30-42" target="_blank" rel="noopener">https://doi.org/10.31489/2025Ec1/30-42</a></li>
+        <li>Kuzhabekova, A., Janenova, S., &amp; Almukhambetova, A. (2018). Analyzing the experiences of female leaders in civil service in Kazakhstan: Trapped between economic pressure to earn and traditional family role expectations. <em>International Journal of Public Administration, 41</em>(15), 1290–1301. <a href="https://doi.org/10.1080/01900692.2017.1387142" target="_blank" rel="noopener">https://doi.org/10.1080/01900692.2017.1387142</a></li>
+        <li>Meurs, M., Nugmanova, M., Salimzhanova, A., &amp; Marvin, S. (2021). Gender regime and women’s employment in Kazakhstan. <em>Comparative Economic Studies, 63</em>, 603–622. <a href="https://doi.org/10.1057/s41294-021-00173-0" target="_blank" rel="noopener">https://doi.org/10.1057/s41294-021-00173-0</a></li>
+        <li>Zabirova, A. (2026). Moralized patriarchy in Kazakhstan. <em>Journal of International Women’s Studies, 28</em>(3), Article 4. <a href="https://vc.bridgew.edu/jiws/vol28/iss3/4" target="_blank" rel="noopener">https://vc.bridgew.edu/jiws/vol28/iss3/4</a></li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Slide navigation">
+  <button id="prevBtn" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="track"><i id="progress"></i></div>
+  <div class="count"><span id="cur">1</span> / <span id="tot">16</span></div>
+  <button id="nextBtn" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+</nav>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0;
+  var curEl = document.getElementById('cur'), totEl = document.getElementById('tot'), progEl = document.getElementById('progress');
+  var prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
+  var track = document.querySelector('.nav .track');
+  totEl.textContent = total;
+
+  function render(){
+    slides.forEach(function(s, i){
+      s.classList.toggle('active', i === idx);
+      s.classList.toggle('exit-left', i < idx && i !== idx);
+    });
+    document.body.className = slides[idx].classList.contains('light') ? 'light-nav' : '';
+    curEl.textContent = idx + 1;
+    progEl.style.width = ((idx + 1) / total * 100) + '%';
+    progEl.style.backgroundSize = track.offsetWidth + 'px 100%';
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === total - 1;
+  }
+  function go(n){ idx = Math.max(0, Math.min(total - 1, n)); render(); }
+
+  prevBtn.addEventListener('click', function(){ go(idx - 1); });
+  nextBtn.addEventListener('click', function(){ go(idx + 1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ e.preventDefault(); go(idx + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(idx - 1); }
+    else if (e.key === 'Home'){ go(0); } else if (e.key === 'End'){ go(total - 1); }
+  });
+  var touchX = null;
+  document.addEventListener('touchstart', function(e){ touchX = e.changedTouches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50){ dx < 0 ? go(idx + 1) : go(idx - 1); }
+    touchX = null;
+  }, {passive:true});
+
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+
+</body>
+</html>
